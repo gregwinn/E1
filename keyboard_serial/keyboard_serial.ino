@@ -1,7 +1,7 @@
 /*
 KEYMAP as found here: http://www.nouspikel.com/ti99/titechpages.htm
  
- # = wire from left to right looking at keyboard from normal orientation
+ # = wire from left to right looking at Serial from normal orientation
  
       #12  #13  #14  #15  #9  #8  #6
  #5    =    .    ,    M    N   /   
@@ -20,25 +20,25 @@ KEYMAP as found here: http://www.nouspikel.com/ti99/titechpages.htm
 
 
 #include <Bounce.h>
+#include <Wire.h>
+
+/*
+	SLAVE / KEYBOARD ADDRESS -> 2
+*/
+#define KEYBOARD_ADDRESS 2
+
 const int bounceDelay = 90;
 
 Bounce wire1  = Bounce(0, bounceDelay); // OUTPUT
 Bounce wire3  = Bounce(3, bounceDelay); // OUTPUT
 Bounce wire4  = Bounce(4, bounceDelay); // OUTPUT
 Bounce wire5  = Bounce(5, bounceDelay); // OUTPUT
-
 Bounce wire6  = Bounce(6, bounceDelay); // INPUT
-
 Bounce wire7  = Bounce(7, bounceDelay); // OUTPUT
-
 Bounce wire8  = Bounce(8, bounceDelay); // INPUT
-
 Bounce wire9  = Bounce(9, bounceDelay); // INPUT
-
 Bounce wire10 = Bounce(10, bounceDelay); // OUTPUT
-
 Bounce wire11 = Bounce(11, bounceDelay); // OUTPUT
-
 Bounce wire12 = Bounce(12, bounceDelay); // INPUT
 Bounce wire13 = Bounce(13, bounceDelay); // INPUT
 Bounce wire14 = Bounce(A0, bounceDelay); // INPUT
@@ -51,41 +51,26 @@ boolean lock;
 
 
 void setup(){
-	Keyboard.begin();
 	Serial.begin(9600);
+	Wire.begin(KEYBOARD_ADDRESS);
+	delay(5); // Give it time to get setup
+	Wire.onRequest(requestEvent);
+	
 	pinMode(0, OUTPUT);  // 1
-	
-	
 	pinMode(2, OUTPUT);  // 2
-	
-	
 	pinMode(3, OUTPUT);  // 3
-	
 	pinMode(4, OUTPUT);  // 4
-	
 	pinMode(5, OUTPUT);  // 5
-	
 	pinMode(6, INPUT);  // 6
-	
 	pinMode(7, OUTPUT);  // 7
-	
 	pinMode(8, INPUT);  // 8
-	
-  
 	pinMode(9, INPUT );  // 9
-	
 	pinMode(10, OUTPUT );  // 10
-	
 	pinMode(11, OUTPUT );  // 11
-	
 	pinMode(12, INPUT );  // 12
-	
 	pinMode(13, INPUT );  // 13
-	
 	pinMode(A0, INPUT );  // 14 
-	
 	pinMode(A1, INPUT );  // 15
-	
 }
 
 void loop(){
@@ -105,94 +90,90 @@ void loop(){
 	if(wire9.risingEdge()){
 		if(lock == true){ 
 			Serial.print('Y');
-			Keyboard.print('Y');
 			lock = false;
 		} 
 		else if(shft == true){
 			Serial.print('Y');
-			Keyboard.print('Y');
 			shft = false;
 		} else {
 			Serial.print('y');
-			Keyboard.print('y');
 		}
 	}
 	
 	// ----------------------- P
 	if(wire8.risingEdge()){
 		if(lock == true){ 
-			Keyboard.print('P'); 
+			Serial.print('P'); 
 			lock = false;
 		} 
 		else if(shft == true){
-			Keyboard.print('P'); 
+			Serial.print('P'); 
 			shft = false;
 		}
 		else if(fctn == true) {
-			Keyboard.print('"');
+			Serial.print('"');
 			fctn = false;
 		} else {
-			Keyboard.print('p');
-			Serial.write("At P");			
+			Serial.print('p');			
 		}
 	}
 	
 	// ----------------------- I
 	if(wire14.risingEdge()){
 		if(lock == true){ 
-			Keyboard.print('I'); 
+			Serial.print('I'); 
 			lock = false;
 		} 
 		else if(shft == true){
-			Keyboard.print('I'); 
+			Serial.print('I'); 
 			shft = false;
 		}
 		else if(fctn == true) {
-			Keyboard.print('?');
+			Serial.print('?');
 			fctn = false;
 		} else {
-			Keyboard.print('i'); 
+			Serial.print('i'); 
 		}
 	}
 	
 	// ----------------------- O
 	if(wire13.risingEdge()){
 		if(lock == true){ 
-			Keyboard.print('O'); 
+			Serial.print('O'); 
 			lock = false;
 		} 
 		else if(shft == true){
-			Keyboard.print('O'); 
+			Serial.print('O'); 
 			shft = false;
 		}
 		else if(fctn == true) {
-			Keyboard.print("'");
+			Serial.print("'");
 			fctn = false;
 		} else {
-			Keyboard.print('o'); 
+			Serial.print('o'); 
 		}
 	}
 	
 	// ----------------------- Enter / Return
 	if(wire12.risingEdge()){
-		Keyboard.print('\n');
+		Serial.print('\n');
 	}
 	
 	// ----------------------- U
 	if(wire15.risingEdge()){
 		if(lock == true){ 
-			Keyboard.print('U'); 
+			Serial.print('U'); 
 			lock = false;
 		} 
 		else if(shft == true){
-			Keyboard.print('U'); 
+			Serial.print('U'); 
 			shft = false;
 		}
 		else if(fctn == true) {
-			Keyboard.print("_");
+			Serial.print("_");
 			fctn = false;
 		} else {
-			Keyboard.print('u'); 
+			Serial.print('u'); 
 		}
 	}
 	// ------------------------------ END ROW 0
@@ -212,54 +193,54 @@ void loop(){
 	// ----------------------- 6
 	if(wire9.risingEdge()){
 		if(shft == true){
-			Keyboard.print('^'); 
+			Serial.print('^'); 
 			shft = false;
 		} else {
-			Keyboard.print('6');			
+			Serial.print('6');			
 		}
 	}
 	
 	// ----------------------- 0
 	if(wire8.risingEdge()){
 		if(shft == true){
-			Keyboard.print(')'); 
+			Serial.print(')'); 
 			shft = false;
 		} else {
-			Keyboard.print('0');			
+			Serial.print('0');			
 		}
 	}
 	
 	// ----------------------- 7
 	if(wire15.risingEdge()){
 		if(shft == true){
-			Keyboard.print('&'); 
+			Serial.print('&'); 
 			shft = false;
 		} else {
-			Keyboard.print('7');			
+			Serial.print('7');			
 		}
 	}
 	
 	// ----------------------- 8
 	if(wire14.risingEdge()){
 		if(shft == true){
-			Keyboard.print('*'); 
+			Serial.print('*'); 
 			shft = false;
 		} else {
-			Keyboard.print('8');			
+			Serial.print('8');			
 		}
 	}
 	
 	// ----------------------- 9
 	if(wire13.risingEdge()){
 		if(shft == true){
-			Keyboard.print('('); 
+			Serial.print('('); 
 			shft = false;
 		} else if(fctn == true){
-			Keyboard.press(KEY_LEFT_ARROW);
+			Serial.press(KEY_LEFT_ARROW);
 			fctn = false;
-			Keyboard.release(KEY_LEFT_ARROW);
+			Serial.release(KEY_LEFT_ARROW);
 		} else {
-			Keyboard.print('9');
+			Serial.print('9');
 		}
 	}
 	
@@ -278,82 +259,82 @@ void loop(){
 	// ----------------------- A
 	if(wire8.risingEdge()){
 		if(lock == true){
-			Keyboard.print('A'); 
+			Serial.print('A'); 
 			lock = false;
 		} else if(fctn == true) {
-			Keyboard.print("|");
+			Serial.print("|");
 			fctn = false;
 		} else if(shft == true){
-			Keyboard.print('A');
+			Serial.print('A');
 			shft = false;
 		} else {
-			Keyboard.print('a'); 
+			Serial.print('a'); 
 		}
 	}
 
 	// ----------------------- G
 	if(wire9.risingEdge()){
 		if(lock == true){
-			Keyboard.print('G'); 
+			Serial.print('G'); 
 			lock = false;
 		} else if(fctn == true) {
-			Keyboard.print("}");
+			Serial.print("}");
 			fctn = false;
 		} else if(shft == true){
-			Keyboard.print('G');
+			Serial.print('G');
 			shft = false;
 		} else {
-			Keyboard.print('g'); 
+			Serial.print('g'); 
 		}
 	}
 
 	// ----------------------- F
 	if(wire15.risingEdge()){
 		if(lock == true){
-			Keyboard.print('F'); 
+			Serial.print('F'); 
 			lock = false;
 		} else if(fctn == true) {
-			Keyboard.print("{");
+			Serial.print("{");
 			fctn = false;
 		} else if(shft == true){
-			Keyboard.print('F'); 
+			Serial.print('F'); 
 			shft = false;
 		} else {
-			Keyboard.print('f'); 
+			Serial.print('f'); 
 		}
 	}
 
 	// ----------------------- D
 	if(wire14.risingEdge()){
 		if(lock == true){
-			Keyboard.print('D'); 
+			Serial.print('D'); 
 			lock = false;
 		} else if(fctn == true) {
-			Keyboard.press(KEY_RIGHT_ARROW);
+			Serial.press(KEY_RIGHT_ARROW);
 			fctn = false;
-			Keyboard.release(KEY_RIGHT_ARROW);
+			Serial.release(KEY_RIGHT_ARROW);
 		} else if(shft == true) {
-			Keyboard.print('D');
+			Serial.print('D');
 			shft = false;
 		} else {
-			Keyboard.print('d'); 
+			Serial.print('d'); 
 		}
 	}
 
 	// ----------------------- S
 	if(wire13.risingEdge()){
 		if(lock == true){
-			Keyboard.print('S');
+			Serial.print('S');
 			lock = false; 
 		} else if(fctn == true) {
-			Keyboard.press(KEY_LEFT_ARROW);
+			Serial.press(KEY_LEFT_ARROW);
 			fctn = false;
-			Keyboard.release(KEY_LEFT_ARROW);
+			Serial.release(KEY_LEFT_ARROW);
 		} else if(shft == true){
-			Keyboard.print('S');
+			Serial.print('S');
 			shft = false;
 		} else {
-			Keyboard.print('s'); 
+			Serial.print('s'); 
 		}
 	}
 
@@ -373,68 +354,68 @@ void loop(){
 	// ----------------------- ;
 	if(wire8.risingEdge()){
 		if(shft == true){
-			Keyboard.print(':'); 
+			Serial.print(':'); 
 			shft = false;
 		} else {
-			Keyboard.print(';'); 
+			Serial.print(';'); 
 		}
 	}
 
 	// ----------------------- H
 	if(wire9.risingEdge()){
 		if(lock == true){
-			Keyboard.print('H'); 
+			Serial.print('H'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('H');
+			Serial.print('H');
 			shft = false;
 		} else {
-			Keyboard.print('h'); 
+			Serial.print('h'); 
 		}
 	}
 
 	// ----------------------- J
 	if(wire15.risingEdge()){
 		if(lock == true){
-			Keyboard.print('J'); 
+			Serial.print('J'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('J'); 
+			Serial.print('J'); 
 			shft = false;
 		} else {
-			Keyboard.print('j'); 
+			Serial.print('j'); 
 		}
 	}
 
 	// ----------------------- K
 	if(wire14.risingEdge()){
 		if(lock == true){
-			Keyboard.print('K'); 
+			Serial.print('K'); 
 			lock = false;
 		} else if(shft == true) {
-			Keyboard.print('K');
+			Serial.print('K');
 			shft = false;
 		} else {
-			Keyboard.print('k'); 
+			Serial.print('k'); 
 		}
 	}
 
 	// ----------------------- L
 	if(wire13.risingEdge()){
 		if(lock == true){
-			Keyboard.print('L');
+			Serial.print('L');
 			lock = false; 
 		} else if(shft == true){
-			Keyboard.print('L');
+			Serial.print('L');
 			shft = false;
 		} else {
-			Keyboard.print('l'); 
+			Serial.print('l'); 
 		}
 	}
 
 	// ----------------------- SPACE
 	if(wire12.risingEdge()){
-		Keyboard.print(' '); 
+		Serial.print(' '); 
 	}  
 	
 	// ------------------------------ END ROW 4
@@ -453,64 +434,64 @@ void loop(){
 	// ----------------------- /
 	if(wire8.risingEdge()){
 		if(shft == true){
-			Keyboard.print('-'); 
+			Serial.print('-'); 
 			shft = false;
 		} else {
-			Keyboard.print('/'); 
+			Serial.print('/'); 
 		}
 	}
 
 	// ----------------------- N
 	if(wire9.risingEdge()){
 		if(lock == true){
-			Keyboard.print('N'); 
+			Serial.print('N'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('N'); 
+			Serial.print('N'); 
 		} else {
-			Keyboard.print('n'); 
+			Serial.print('n'); 
 		}
 	}
 
 	// ----------------------- M
 	if(wire15.risingEdge()){
 		if(lock == true){
-			Keyboard.print('M'); 
+			Serial.print('M'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('M'); 
+			Serial.print('M'); 
 		} else {
-			Keyboard.print('m'); 
+			Serial.print('m'); 
 		}
 	}
 
 	// ----------------------- ,
 	if(wire14.risingEdge()){
 		if(shft == true){
-			Keyboard.print('<'); 
+			Serial.print('<'); 
 			shft = false;
 		} else {
-			Keyboard.print(','); 
+			Serial.print(','); 
 		}
 	}
 
 	// ----------------------- .
 	if(wire13.risingEdge()){
 		if(shft == true){
-			Keyboard.print('>'); 
+			Serial.print('>'); 
 			shft = false;
 		} else {
-			Keyboard.print('.'); 
+			Serial.print('.'); 
 		}
 	}
 
 	// ----------------------- =
 	if(wire12.risingEdge()){
 		if(shft == true){
-			Keyboard.print('+'); 
+			Serial.print('+'); 
 			shft = false;
 		} else {
-			Keyboard.print('='); 
+			Serial.print('='); 
 		}
 	}  
 	
@@ -530,50 +511,50 @@ void loop(){
 	// ----------------------- 1
 	if(wire8.risingEdge()){
 		if(shft == true){
-			Keyboard.print('!'); 
+			Serial.print('!'); 
 			shft = false;
 		} else if(ctrl == true){
-			Keyboard.press(KEY_BACKSPACE);
+			Serial.press(KEY_BACKSPACE);
 			ctrl = false;
-			Keyboard.release(KEY_BACKSPACE);
+			Serial.release(KEY_BACKSPACE);
 		} else {
-			Keyboard.print('1'); 
+			Serial.print('1'); 
 		}
 	}
 
 	// ----------------------- 5
 	if(wire9.risingEdge()){
 		if(shft == true){
-			Keyboard.print('%'); 
+			Serial.print('%'); 
 		} else {
-			Keyboard.print('5'); 
+			Serial.print('5'); 
 		}
 	} 
 
 	// ----------------------- 4
 	if(wire15.risingEdge()){
 		if(shft == true){
-			Keyboard.print('$'); 
+			Serial.print('$'); 
 		} else {
-			Keyboard.print('4'); 
+			Serial.print('4'); 
 		}
 	} 
 
 	// ----------------------- 3
 	if(wire14.risingEdge()){
 		if(shft == true){
-			Keyboard.print('#'); 
+			Serial.print('#'); 
 		} else {
-			Keyboard.print('3'); 
+			Serial.print('3'); 
 		}
 	}  
 
 	// ----------------------- 2
 	if(wire13.risingEdge()){
 		if(shft == true){
-			Keyboard.print('@'); 
+			Serial.print('@'); 
 		} else {
-			Keyboard.print('2'); 
+			Serial.print('2'); 
 		}
 	}
 	
@@ -593,78 +574,78 @@ void loop(){
 	// ----------------------- Q
 	if(wire8.risingEdge()){
 		if(lock == true){
-			Keyboard.print('Q'); 
+			Serial.print('Q'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('Q');
+			Serial.print('Q');
 			shft = false; 
 		} else {
-			Keyboard.print('q'); 
+			Serial.print('q'); 
 		}
 	} 
 
 	// ----------------------- T
 	if(wire9.risingEdge()){
 		if(lock == true){
-			Keyboard.print('T'); 
+			Serial.print('T'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('T');
+			Serial.print('T');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.print(']');
+			Serial.print(']');
 			fctn = false;
 		} else {
-			Keyboard.print('t'); 
+			Serial.print('t'); 
 		}
 	}  
 
 	// ----------------------- R
 	if(wire15.risingEdge()){
 		if(lock == true){
-			Keyboard.print('R'); 
+			Serial.print('R'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('R');
+			Serial.print('R');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.print('[');
+			Serial.print('[');
 			fctn = false;
 		} else {
-			Keyboard.print('r'); 
+			Serial.print('r'); 
 		}
 	}  
 
 	// ----------------------- E
 	if(wire14.risingEdge()){
 		if(lock == true){
-			Keyboard.print('E'); 
+			Serial.print('E'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('E');
+			Serial.print('E');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.press(KEY_UP_ARROW);
+			Serial.press(KEY_UP_ARROW);
 			fctn = false;
-			Keyboard.release(KEY_UP_ARROW);
+			Serial.release(KEY_UP_ARROW);
 		} else {
-			Keyboard.print('e'); 
+			Serial.print('e'); 
 		}
 	} 
 
 	// ----------------------- W
 	if(wire13.risingEdge()){
 		if(lock == true){
-			Keyboard.print('W'); 
+			Serial.print('W'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('W');
+			Serial.print('W');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.print('~');
+			Serial.print('~');
 			fctn = false;
 		} else {
-			Keyboard.print('w'); 
+			Serial.print('w'); 
 		}
 	} 
 	
@@ -684,75 +665,75 @@ void loop(){
 	// ----------------------- Z
 	if(wire8.risingEdge()){
 		if(lock == true){
-			Keyboard.print('Z'); 
+			Serial.print('Z'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('Z');
+			Serial.print('Z');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.print("\\");
+			Serial.print("\\");
 			fctn = false;
 		} else {
-			Keyboard.print('z'); 
+			Serial.print('z'); 
 		}
 	} 
 
 	// ----------------------- B
 	if(wire9.risingEdge()){
 		if(lock == true){
-			Keyboard.print('B'); 
+			Serial.print('B'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('B');
+			Serial.print('B');
 			shft = false; 
 		} else {
-			Keyboard.print('b'); 
+			Serial.print('b'); 
 		}
 	} 
 
 	// ----------------------- V
 	if(wire15.risingEdge()){
 		if(lock == true){
-			Keyboard.print('V'); 
+			Serial.print('V'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('V');
+			Serial.print('V');
 			shft = false; 
 		} else {
-			Keyboard.print('v'); 
+			Serial.print('v'); 
 		}
 	} 
 
 	// ----------------------- C
 	if(wire14.risingEdge()){
 		if(lock == true){
-			Keyboard.print('C'); 
+			Serial.print('C'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('C');
+			Serial.print('C');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.print('`');
+			Serial.print('`');
 			fctn = false; 
 		} else {
-			Keyboard.print('c'); 
+			Serial.print('c'); 
 		}
 	} 
 
 	// ----------------------- X
 	if(wire13.risingEdge()){
 		if(lock == true){
-			Keyboard.print('X'); 
+			Serial.print('X'); 
 			lock = false;
 		} else if(shft == true){
-			Keyboard.print('X');
+			Serial.print('X');
 			shft = false; 
 		} else if(fctn == true){
-			Keyboard.press(KEY_DOWN_ARROW);
+			Serial.press(KEY_DOWN_ARROW);
 			fctn = false;
-			Keyboard.release(KEY_DOWN_ARROW);
+			Serial.release(KEY_DOWN_ARROW);
 		} else {
-			Keyboard.print('x'); 
+			Serial.print('x'); 
 		}
 	} 
 	
@@ -800,4 +781,8 @@ void checkModifiers(){
 		ctrl = false; 
 	}
 	digitalWrite(10, LOW);
+}
+
+void requestEvent(){
+	
 }
