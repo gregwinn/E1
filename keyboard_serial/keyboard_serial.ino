@@ -18,14 +18,21 @@ KEYMAP as found here: http://www.nouspikel.com/ti99/titechpages.htm
  
  */
 
-
 #include <Bounce.h>
 #include <Wire.h>
 
 /*
-	SLAVE / KEYBOARD ADDRESS -> 2
+	MASTER / KEYBOARD ADDRESS -> 2
+	SLAVE  / CPU ADDRESS	  -> 10
+	
+	Checkin byte			  -> 0x01
 */
 #define KEYBOARD_ADDRESS 2
+#define CPU_ADDRESS		 10
+#define CHECKIN_BYTE	 0x01
+
+// Space in memory for the keystroke being sent
+int keybyte = 000;
 
 const int bounceDelay = 90;
 
@@ -54,7 +61,12 @@ void setup(){
 	Serial.begin(9600);
 	Wire.begin(KEYBOARD_ADDRESS);
 	delay(5); // Give it time to get setup
-	Wire.onRequest(requestEvent);
+	
+	// Send check in byte for services check
+	Wire.beginTransmission(CPU_ADDRESS);
+	Wire.write(CHECKIN_BYTE); // can be a string
+	Wire.endTransmision();
+	delay(5);
 	
 	pinMode(0, OUTPUT);  // 1
 	pinMode(2, OUTPUT);  // 2
@@ -74,9 +86,9 @@ void setup(){
 }
 
 void loop(){
-	
+	keybyte = 000;
 	// check for SHIFT, CTRL, FCTN, and/or ALPHA LOCK
-  checkModifiers();
+	checkModifiers();
 	
 	digitalWrite(0, HIGH);
 	wire6.update();
@@ -88,51 +100,51 @@ void loop(){
 	wire12.update();
 	// ----------------------- Y
 	if(wire9.risingEdge()){
-		if(lock == true){ 
-			Serial.print('Y');
+		if(lock == true){
+			keybyte = 131;
 			lock = false;
 		} 
 		else if(shft == true){
-			Serial.print('Y');
+			keybyte = 131;
 			shft = false;
 		} else {
-			Serial.print('y');
+			keybyte = 171;
 		}
 	}
 	
 	// ----------------------- P
 	if(wire8.risingEdge()){
 		if(lock == true){ 
-			Serial.print('P'); 
+			keybyte = 120; 
 			lock = false;
 		} 
 		else if(shft == true){
-			Serial.print('P'); 
+			keybyte = 120; 
 			shft = false;
 		}
 		else if(fctn == true) {
-			Serial.print('"');
+			keybyte = 042;
 			fctn = false;
 		} else {
-			Serial.print('p');			
+			keybyte = 160;
 		}
 	}
 	
 	// ----------------------- I
 	if(wire14.risingEdge()){
 		if(lock == true){ 
-			Serial.print('I'); 
+			keybyte = 111; 
 			lock = false;
 		} 
 		else if(shft == true){
-			Serial.print('I'); 
+			keybyte = 111; 
 			shft = false;
 		}
 		else if(fctn == true) {
-			Serial.print('?');
+			keybyte = 077;
 			fctn = false;
 		} else {
-			Serial.print('i'); 
+			keybyte = 151; 
 		}
 	}
 	
@@ -739,6 +751,12 @@ void loop(){
 	
 	// ------------------------------ END ROW 11
 	digitalWrite(11, LOW);
+	
+	// Send key to CPU
+	Wire.beginTransmission(CPU_ADDRESS);
+	Wire.write(keybyte); // can be a string
+	Wire.endTransmision();
+	
 }
 
 
